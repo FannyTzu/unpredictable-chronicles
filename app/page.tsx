@@ -1,12 +1,12 @@
 "use client";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 
 import MainBlock from "./components/MainBlock/MainBlock";
 import FirstChoice from "./components/FirstChoice/FirstChoice";
 import SecondaryChoice from "./components/SecondaryChoice/SecondaryChoice";
 import ThirdChoice from "./components/ThirdChoice/ThirdChoice";
 import RoadMap from "./components/RoadMap/RoadMap";
-import mock from "./data/mock.json";
+
 
 import s from "./style.module.css";
 
@@ -26,7 +26,7 @@ interface Section {
 }
 
 export default function Home() {
-  const [currentId, setCurrentDescription] = useState<Section>(mock[0]);
+  const [currentSection, setCurrentSection] = useState<Section | null>(null);
 
   const [currentLifePoint, setCurrentLifePoint] = useState(0);
 
@@ -34,39 +34,45 @@ export default function Home() {
 
   const [currentMoney, setCurrentMoney] = useState(0);
 
-  const [currentStuff, setCurrentStuff] = useState<string[]>([""]);
+  const [currentStuff, setCurrentStuff] = useState<string[]>([]);
+
+  const fetchSection = (id: number) => {
+    fetch(`http://localhost:3001/pages/${id}`)
+        .then(res => res.json())
+        .then(nextSection => {
+          // Update stats
+          if (nextSection.impact) {
+            nextSection.impact.forEach((effect: any) => {
+              if (effect.endurance) setCurrentLifePoint(prev => prev + effect.endurance);
+              if (effect.money) setCurrentMoney(prev => prev + effect.money);
+            });
+          }
+
+          if (nextSection.items) {
+            const weapon = nextSection.items[0]?.weapons;
+            if (weapon) setCurrentWeapons(prev => [...prev, weapon]);
+
+            const money = nextSection.items[1]?.money;
+            if (money) setCurrentMoney(prev => prev + money);
+
+            const stuff = nextSection.items[2]?.stuff;
+            if (stuff) setCurrentStuff(prev => [...prev, ...stuff]);
+          }
+
+          setCurrentSection(nextSection);
+        });
+  };
 
   const updateChoice = (nextId: number) => {
-    const nextSection = mock.find((section) => section.id === nextId);
-    if (nextSection) {
-      if (nextSection.impact && nextSection.impact.length > 0) {
-        nextSection.impact.forEach((effect) => {
-          if (effect.endurance !== undefined) {
-            setCurrentLifePoint((prev) => prev + effect.endurance);
-          }
-          if (effect.money !== undefined) {
-            setCurrentMoney((prev) => prev + effect.money);
-          }
-        });
-      }
-      if (nextSection.items && nextSection.items.length > 0) {
-        const weapon = nextSection.items[0].weapons;
-        if (weapon) {
-          setCurrentWeapons((prev) => [...prev, weapon]);
-        }
-        const money = nextSection.items[1].money;
-        if (money) {
-          setCurrentMoney(currentMoney + money);
-        }
-        const stuff = nextSection.items[2].stuff;
-        if (stuff) {
-          setCurrentStuff((prev) => [...prev, ...stuff]);
-        }
-      }
-
-      setCurrentDescription(nextSection);
-    }
+    fetchSection(nextId);
   };
+
+  useEffect(() => {
+    fetchSection(1);
+  }, []);
+
+  if (!currentSection) return <p>Chargement...</p>;
+
 
   return (
     <div className={s.container}>
@@ -79,11 +85,11 @@ export default function Home() {
           stuff={currentStuff}
         />
         <div className={s.read}>
-          <MainBlock description={currentId} money={currentMoney} />
+          <MainBlock description={currentSection} money={currentMoney} />
           <div className={s.choice}>
-            <FirstChoice onClick={updateChoice} choice={currentId} />
-            <SecondaryChoice onClick={updateChoice} choice={currentId} />
-            <ThirdChoice onClick={updateChoice} choice={currentId} />
+            <FirstChoice onClick={updateChoice} choice={currentSection} />
+            <SecondaryChoice onClick={updateChoice} choice={currentSection} />
+            <ThirdChoice onClick={updateChoice} choice={currentSection} />
           </div>
         </div>
       </main>
