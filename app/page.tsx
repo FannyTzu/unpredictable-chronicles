@@ -1,63 +1,90 @@
-import Image from "next/image";
+"use client";
+import { useState } from "react";
+
+import MainBlock from "./components/MainBlock/MainBlock";
+import FirstChoice from "./components/FirstChoice/FirstChoice";
+import SecondaryChoice from "./components/SecondaryChoice/SecondaryChoice";
+import ThirdChoice from "./components/ThirdChoice/ThirdChoice";
+import RoadMap from "./components/RoadMap/RoadMap";
+import mock from "./data/mock.json";
+
+import s from "./style.module.css";
+
+interface Item {
+  weapons?: string;
+  money?: number;
+  stuff?: string[];
+  power?: number;
+}
+
+interface Section {
+  id: number;
+  description: string;
+  choices: { label: string; nextId: number }[];
+  impact?: { endurance?: number; money?: number }[];
+  items?: Item[];
+}
 
 export default function Home() {
+  const [currentId, setCurrentDescription] = useState<Section>(mock[0]);
+
+  const [currentLifePoint, setCurrentLifePoint] = useState(0);
+
+  const [currentWeapons, setCurrentWeapons] = useState<string[]>([]);
+
+  const [currentMoney, setCurrentMoney] = useState(0);
+
+  const [currentStuff, setCurrentStuff] = useState<string[]>([""]);
+
+  const updateChoice = (nextId: number) => {
+    const nextSection = mock.find((section) => section.id === nextId);
+    if (nextSection) {
+      if (nextSection.impact && nextSection.impact.length > 0) {
+        nextSection.impact.forEach((effect) => {
+          if (effect.endurance !== undefined) {
+            setCurrentLifePoint((prev) => prev + effect.endurance);
+          }
+          if (effect.money !== undefined) {
+            setCurrentMoney((prev) => prev + effect.money);
+          }
+        });
+      }
+      if (nextSection.items && nextSection.items.length > 0) {
+        const weapon = nextSection.items[0].weapons;
+        if (weapon) {
+          setCurrentWeapons((prev) => [...prev, weapon]);
+        }
+        const money = nextSection.items[1].money;
+        if (money) {
+          setCurrentMoney(currentMoney + money);
+        }
+        const stuff = nextSection.items[2].stuff;
+        if (stuff) {
+          setCurrentStuff((prev) => [...prev, ...stuff]);
+        }
+      }
+
+      setCurrentDescription(nextSection);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className={s.container}>
+      <h1>Les chroniques imprévisibles</h1>
+      <main className={s.main}>
+        <RoadMap
+          lifePoint={currentLifePoint}
+          weapons={currentWeapons}
+          money={currentMoney}
+          stuff={currentStuff}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className={s.read}>
+          <MainBlock description={currentId} money={currentMoney} />
+          <div className={s.choice}>
+            <FirstChoice onClick={updateChoice} choice={currentId} />
+            <SecondaryChoice onClick={updateChoice} choice={currentId} />
+            <ThirdChoice onClick={updateChoice} choice={currentId} />
+          </div>
         </div>
       </main>
     </div>
