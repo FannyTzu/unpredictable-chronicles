@@ -1,14 +1,9 @@
 "use client";
 import {useEffect, useState} from "react";
-
 import MainBlock from "./components/MainBlock/MainBlock";
-import FirstChoice from "./components/FirstChoice/FirstChoice";
-import SecondaryChoice from "./components/SecondaryChoice/SecondaryChoice";
-import ThirdChoice from "./components/ThirdChoice/ThirdChoice";
 import RoadMap from "./components/RoadMap/RoadMap";
-
-
 import s from "./style.module.css";
+import DynamicChoices from "@/app/components/DynamicChoices/DynamicChoices";
 
 interface Item {
   weapons?: string;
@@ -75,21 +70,21 @@ export default function Home() {
 
 
   return (
-    <div className={s.container}>
+    <div>
       <h1>Les chroniques imprévisibles</h1>
-      <main className={s.main}>
+      <main className={s.adventure}>
         <RoadMap
           lifePoint={currentLifePoint}
           weapons={currentWeapons}
           money={currentMoney}
           stuff={currentStuff}
         />
-        <div className={s.read}>
+        <div className={s.container}>
+          <div className={s.read} >
           <MainBlock description={currentSection} money={currentMoney} />
+          </div>
           <div className={s.choice}>
-            <FirstChoice onClick={updateChoice} choice={currentSection} />
-            <SecondaryChoice onClick={updateChoice} choice={currentSection} />
-            <ThirdChoice onClick={updateChoice} choice={currentSection} />
+            <DynamicChoices onClick={updateChoice} choice={currentSection} />
           </div>
         </div>
       </main>
