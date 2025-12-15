@@ -2,6 +2,7 @@ import s from "./style.module.css";
 
 interface Choice {
   label: string;
+  available: boolean;
   nextId: number;
 }
 
@@ -22,10 +23,13 @@ export default function DynamicChoices({ choice, onClick }: DynamicChoicesProps)
         {choice.choices.map((c, index) => (
             <button
                 key={index}
-                className={s.choiceButton}
+                className={`${s.choiceButton} ${
+                    !c.available ? s.choiceDisabled : ""
+                }`}
+                disabled={!c.available}
                 onClick={() => onClick(c.nextId)}
             >
-              {c.label}
+              {!c.available ? "Choix indisponible" : c.label}
             </button>
         ))}
       </div>

@@ -15,7 +15,7 @@ interface Item {
 interface Section {
   id: number;
   description: string;
-  choices: { label: string; nextId: number }[];
+  choices: { label: string; nextId: number; available: boolean }[];
   impact?: { endurance?: number; money?: number }[];
   items?: Item[];
 }
@@ -35,7 +35,6 @@ export default function Home() {
     fetch(`http://localhost:3001/pages/${id}`)
         .then(res => res.json())
         .then(nextSection => {
-          // Update stats
           if (nextSection.impact) {
             nextSection.impact.forEach((effect: any) => {
               if (effect.endurance) setCurrentLifePoint(prev => prev + effect.endurance);
