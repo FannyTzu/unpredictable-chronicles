@@ -1,92 +1,104 @@
 "use client";
 import {useEffect, useState} from "react";
 import MainBlock from "./components/MainBlock/MainBlock";
-import RoadMap from "./components/RoadMap/RoadMap";
+import Player from "@/app/components/Player/Player";
 import s from "./style.module.css";
 import DynamicChoices from "@/app/components/DynamicChoices/DynamicChoices";
 
 interface Item {
-  weapons?: string;
-  money?: number;
-  stuff?: string[];
-  power?: number;
+    weapons?: string;
+    money?: number;
+    stuff?: string[];
+    power?: number;
 }
 
 interface Section {
-  id: number;
-  description: string;
-  choices: { label: string; nextId: number; available: boolean }[];
-  impact?: { endurance?: number; money?: number }[];
-  items?: Item[];
+    id: number;
+    description: string;
+    choices: { label: string; nextId: number; available: boolean }[];
+    impact?: { endurance?: number; money?: number }[];
+    items?: Item[];
+}
+
+interface PlayerType {
+    name: string;
+    endurance: number;
+    money: number;
+    weapons: string[];
+    stuff: string[];
+    currentPageId: number;
+    id: number;
 }
 
 export default function Home() {
-  const [currentSection, setCurrentSection] = useState<Section | null>(null);
+    const [currentSection, setCurrentSection] = useState<Section | null>(null);
 
-  const [currentLifePoint, setCurrentLifePoint] = useState(0);
+    const [loadPlayer, setLoadPlayer] = useState<PlayerType | null>(null);
 
-  const [currentWeapons, setCurrentWeapons] = useState<string[]>([]);
+    useEffect(() => {
+        async function loadPlayer() {
+            const res = await fetch("http://localhost:3001/players/3");
+            const data = await res.json();
+            setLoadPlayer(data as PlayerType);
+            console.log(data);
+        }
 
-  const [currentMoney, setCurrentMoney] = useState(0);
+        loadPlayer();
 
-  const [currentStuff, setCurrentStuff] = useState<string[]>([]);
+    }, []);
 
-  const fetchSection = (id: number) => {
-    fetch(`http://localhost:3001/pages/${id}`)
-        .then(res => res.json())
-        .then(nextSection => {
-          if (nextSection.impact) {
-            nextSection.impact.forEach((effect: any) => {
-              if (effect.endurance) setCurrentLifePoint(prev => prev + effect.endurance);
-              if (effect.money) setCurrentMoney(prev => prev + effect.money);
-            });
-          }
+    useEffect(() => {
+        if (!loadPlayer) return;
 
-          if (nextSection.items) {
-            const weapon = nextSection.items[0]?.weapons;
-            if (weapon) setCurrentWeapons(prev => [...prev, weapon]);
+        async function loadSection() {
+            const res = await fetch(
+                `http://localhost:3001/pages/${loadPlayer?.currentPageId}`
+            );
+            const data = await res.json();
+            setCurrentSection(data);
+        }
 
-            const money = nextSection.items[1]?.money;
-            if (money) setCurrentMoney(prev => prev + money);
+        loadSection();
+    }, [loadPlayer]);
 
-            const stuff = nextSection.items[2]?.stuff;
-            if (stuff) setCurrentStuff(prev => [...prev, ...stuff]);
-          }
+    const applyChoice = async (nextPageId: number) => {
+        if (!loadPlayer) return;
 
-          setCurrentSection(nextSection);
-        });
-  };
+        const res = await fetch(
+            `http://localhost:3001/players/${loadPlayer.id}/choice`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({nextPageId}),
+            }
+        );
 
-  const updateChoice = (nextId: number) => {
-    fetchSection(nextId);
-  };
+        const data = await res.json();
 
-  useEffect(() => {
-    fetchSection(1);
-  }, []);
+        setLoadPlayer(data.player);
+        setCurrentSection(data.page);
+    };
 
-  if (!currentSection) return <p>Chargement...</p>;
+    if (!currentSection) return <p>Chargement...</p>;
 
+    return (
+        <div>
+            <h1>Les chroniques imprévisibles</h1>
+            <main className={s.adventure}>
+                {loadPlayer ? <Player player={loadPlayer}/> : null}
 
-  return (
-    <div>
-      <h1>Les chroniques imprévisibles</h1>
-      <main className={s.adventure}>
-        <RoadMap
-          lifePoint={currentLifePoint}
-          weapons={currentWeapons}
-          money={currentMoney}
-          stuff={currentStuff}
-        />
-        <div className={s.container}>
-          <div className={s.read} >
-          <MainBlock description={currentSection} money={currentMoney} />
-          </div>
-          <div className={s.choice}>
-            <DynamicChoices onClick={updateChoice} choice={currentSection} />
-          </div>
+                <div className={s.container}>
+                    <div className={s.read}>
+                        <MainBlock description={currentSection}/>
+                    </div>
+                    <div className={s.choice}>
+                        <DynamicChoices choice={currentSection}
+                                        onClick={applyChoice}/>
+                    </div>
+                </div>
+            </main>
         </div>
-      </main>
-    </div>
-  );
+    );
 }
