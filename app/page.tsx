@@ -48,18 +48,29 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        if (!loadPlayer) return;
+        const loadPlayer = async () => {
+            const token = localStorage.getItem("token");
+            if (!token) return;
 
-        async function loadSection() {
-            const res = await fetch(
-                `http://localhost:3001/pages/${loadPlayer?.currentPageId}`
-            );
+            const res = await fetch(`http://localhost:3001/players/3`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!res.ok) {
+                console.error("Erreur récupération player");
+                return;
+            }
+
             const data = await res.json();
-            setCurrentSection(data);
-        }
+            setLoadPlayer(data);
+        };
 
-        loadSection();
-    }, [loadPlayer]);
+        loadPlayer();
+    }, []);
+
 
     const applyChoice = async (nextPageId: number) => {
         if (!loadPlayer) return;
