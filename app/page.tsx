@@ -36,21 +36,12 @@ export default function Home() {
     const [loadPlayer, setLoadPlayer] = useState<PlayerType | null>(null);
 
     useEffect(() => {
-        async function loadPlayer() {
-            const res = await fetch("http://localhost:3001/players/3");
-            const data = await res.json();
-            setLoadPlayer(data as PlayerType);
-            console.log(data);
-        }
-
-        loadPlayer();
-
-    }, []);
-
-    useEffect(() => {
-        const loadPlayer = async () => {
+        const loadPlayerData = async () => {
             const token = localStorage.getItem("token");
-            if (!token) return;
+            if (!token) {
+                console.error("Token manquant");
+                return;
+            }
 
             const res = await fetch(`http://localhost:3001/players/3`, {
                 headers: {
@@ -66,9 +57,22 @@ export default function Home() {
 
             const data = await res.json();
             setLoadPlayer(data);
+            
+            if (data.currentPageId) {
+                const pageRes = await fetch(`http://localhost:3001/pages/${data.currentPageId}`, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+                if (pageRes.ok) {
+                    const pageData = await pageRes.json();
+                    setCurrentSection(pageData);
+                }
+            }
         };
 
-        loadPlayer();
+        loadPlayerData();
     }, []);
 
 
