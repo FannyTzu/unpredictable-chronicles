@@ -14,8 +14,8 @@ export default function Player({player}: { player: Player }) {
             <h2>{player.name}</h2>
             <div>Endurance : {player.endurance}</div>
             <div>Argent : {player.money}</div>
-            <div>Armes : {player.weapons.join(", ")}</div>
-            <div>Objets : {player.stuff.join(", ")}</div>
+            <div>Armes : {player.weapons?.join(", ")}</div>
+            <div>Objets : {player.stuff?.join(", ")}</div>
         </aside>
     );
 }

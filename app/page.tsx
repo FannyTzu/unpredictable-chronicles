@@ -36,30 +36,45 @@ export default function Home() {
     const [loadPlayer, setLoadPlayer] = useState<PlayerType | null>(null);
 
     useEffect(() => {
-        async function loadPlayer() {
-            const res = await fetch("http://localhost:3001/players/3");
+        const loadPlayerData = async () => {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("Token manquant");
+                return;
+            }
+
+            const res = await fetch(`http://localhost:3001/players/3`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!res.ok) {
+                console.error("Erreur récupération player");
+                return;
+            }
+
             const data = await res.json();
-            setLoadPlayer(data as PlayerType);
-            console.log(data);
-        }
+            setLoadPlayer(data);
+            
+            if (data.currentPageId) {
+                const pageRes = await fetch(`http://localhost:3001/pages/${data.currentPageId}`, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+                if (pageRes.ok) {
+                    const pageData = await pageRes.json();
+                    setCurrentSection(pageData);
+                }
+            }
+        };
 
-        loadPlayer();
-
+        loadPlayerData();
     }, []);
 
-    useEffect(() => {
-        if (!loadPlayer) return;
-
-        async function loadSection() {
-            const res = await fetch(
-                `http://localhost:3001/pages/${loadPlayer?.currentPageId}`
-            );
-            const data = await res.json();
-            setCurrentSection(data);
-        }
-
-        loadSection();
-    }, [loadPlayer]);
 
     const applyChoice = async (nextPageId: number) => {
         if (!loadPlayer) return;
