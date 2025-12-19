@@ -38,16 +38,12 @@ export default function Home() {
     useEffect(() => {
         const loadPlayerData = async () => {
             const token = localStorage.getItem("token");
-            if (!token) {
-                console.error("Token manquant");
-                return;
-            }
+            if (!token) return;
 
-            const res = await fetch(`http://localhost:3001/players/3`, {
+            const res = await fetch("http://localhost:3001/players/me", {
                 headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                }
+                    Authorization: `Bearer ${token}`,
+                },
             });
 
             if (!res.ok) {
@@ -55,20 +51,16 @@ export default function Home() {
                 return;
             }
 
-            const data = await res.json();
-            setLoadPlayer(data);
-            
-            if (data.currentPageId) {
-                const pageRes = await fetch(`http://localhost:3001/pages/${data.currentPageId}`, {
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    }
-                });
-                if (pageRes.ok) {
-                    const pageData = await pageRes.json();
-                    setCurrentSection(pageData);
-                }
+            const player = await res.json();
+            setLoadPlayer(player);
+
+            const pageRes = await fetch(
+                `http://localhost:3001/pages/${player.current_page_id}`
+            );
+
+            if (pageRes.ok) {
+                const page = await pageRes.json();
+                setCurrentSection(page);
             }
         };
 
@@ -79,12 +71,16 @@ export default function Home() {
     const applyChoice = async (nextPageId: number) => {
         if (!loadPlayer) return;
 
+        const token = localStorage.getItem("token");
+
+
         const res = await fetch(
             `http://localhost:3001/players/${loadPlayer.id}/choice`,
             {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({nextPageId}),
             }
