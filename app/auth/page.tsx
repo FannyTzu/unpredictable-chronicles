@@ -74,7 +74,7 @@ export default function AuthPage() {
             </button>
 
             <div className={s.toggle}>
-                {isLogin ? "Pas encore inscrit ?" : "Vous avez déjà un compte ?"}{" "}
+                {isLogin ? "Pas encore inscrit ?" : "Vous avez déjà un compte ?"}
                 <button onClick={toggleMode}>
                     {isLogin ? "Créer un compte" : "Se connecter"}
                 </button>
