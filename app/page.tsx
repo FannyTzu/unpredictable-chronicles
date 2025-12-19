@@ -4,6 +4,7 @@ import MainBlock from "./components/MainBlock/MainBlock";
 import Player from "@/app/components/Player/Player";
 import s from "./style.module.css";
 import DynamicChoices from "@/app/components/DynamicChoices/DynamicChoices";
+import {useRouter} from "next/navigation";
 
 interface Item {
     weapons?: string;
@@ -35,37 +36,59 @@ export default function Home() {
 
     const [loadPlayer, setLoadPlayer] = useState<PlayerType | null>(null);
 
+    const [checkingAuth, setCheckingAuth] = useState(true);
+
+    const router = useRouter();
+
     useEffect(() => {
         const loadPlayerData = async () => {
-            const token = localStorage.getItem("token");
-            if (!token) return;
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    router.replace("/auth");
+                    return;
+                }
 
-            const res = await fetch("http://localhost:3001/players/me", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+                const res = await fetch("http://localhost:3001/players/me", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
 
-            if (!res.ok) {
-                console.error("Erreur récupération player");
-                return;
-            }
+                if (res.status === 404) {
+                    router.replace("/newplayer");
+                    return;
+                }
 
-            const player = await res.json();
-            setLoadPlayer(player);
+                if (!res.ok) {
+                    console.error("Erreur récupération player", res.status);
+                    router.replace("/auth");
+                    return;
+                }
 
-            const pageRes = await fetch(
-                `http://localhost:3001/pages/${player.current_page_id}`
-            );
+                const player = await res.json();
+                setLoadPlayer(player);
 
-            if (pageRes.ok) {
-                const page = await pageRes.json();
-                setCurrentSection(page);
+                const pageRes = await fetch(
+                    `http://localhost:3001/pages/${player.current_page_id ?? player.currentPageId}`
+                );
+
+                if (pageRes.ok) {
+                    const page = await pageRes.json();
+                    setCurrentSection(page);
+                } else {
+                    console.error("Impossible de charger la page du joueur", pageRes.status);
+                }
+            } catch (err) {
+                console.error("Erreur lors de la vérification d'auth:", err);
+                router.replace("/auth");
+            } finally {
+                setCheckingAuth(false);
             }
         };
 
         loadPlayerData();
-    }, []);
+    }, [router]);
 
 
     const applyChoice = async (nextPageId: number) => {
@@ -92,9 +115,10 @@ export default function Home() {
         setCurrentSection(data.page);
     };
 
-    if (!currentSection) return <p>Chargement...</p>;
+    if (checkingAuth || !currentSection) return <p>Chargement...</p>;
 
     return (
+
         <div>
             <h1>Les chroniques imprévisibles</h1>
             <main className={s.adventure}>
@@ -111,5 +135,6 @@ export default function Home() {
                 </div>
             </main>
         </div>
+
     );
 }
