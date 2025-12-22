@@ -60,7 +60,7 @@ export default function Home() {
                 });
 
                 if (res.status === 404) {
-                    router.replace("/newplayer");
+                    router.replace("/newPlayer");
                     return;
                 }
 

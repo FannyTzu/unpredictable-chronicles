@@ -11,11 +11,23 @@ export default function AuthPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const passwordRules = [
+        {label: "8 caractères minimum", test: (p: string) => p.length >= 8},
+        {label: "Une majuscule", test: (p: string) => /[A-Z]/.test(p)},
+        {label: "Une minuscule", test: (p: string) => /[a-z]/.test(p)},
+        {label: "Un chiffre", test: (p: string) => /[0-9]/.test(p)},
+        {label: "Un caractère spécial", test: (p: string) => /[^A-Za-z0-9]/.test(p)},
+    ];
 
     const toggleMode = () => setIsLogin(!isLogin);
 
     const handleAuth = async () => {
+        setError(null);
+
         if (!email || !password) {
+            setError("Veuillez remplir tous les champs");
             return;
         }
 
@@ -32,7 +44,7 @@ export default function AuthPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                setLoading(false);
+                setError(data?.errors?.[0]?.message || data.message || "Erreur inconnue");
                 return;
             }
 
@@ -41,15 +53,15 @@ export default function AuthPage() {
                 document.cookie = `token=${data.token}; path=/; max-age=86400; SameSite=Lax`;
                 router.push("/");
             } else {
-                alert("Compte créé avec succès ! Vous pouvez maintenant vous connecter.");
                 setIsLogin(true);
             }
         } catch (err) {
-            console.error(err);
+            setError("Erreur serveur");
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
 
@@ -72,6 +84,18 @@ export default function AuthPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
+                    {!isLogin && (
+                        <ul className={s.passwordHints}>
+                            {passwordRules.map(rule => (
+                                <li
+                                    key={rule.label}
+                                    className={rule.test(password) ? s.valid : s.invalid}
+                                >
+                                    {rule.label}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
 
                     <button onClick={handleAuth} disabled={loading}>
                         {loading ? "En cours..." : isLogin ? "Se connecter" : "S'inscrire"}
