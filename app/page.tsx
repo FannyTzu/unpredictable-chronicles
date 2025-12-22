@@ -5,6 +5,7 @@ import Player from "@/app/components/Player/Player";
 import s from "./style.module.css";
 import DynamicChoices from "@/app/components/DynamicChoices/DynamicChoices";
 import {useRouter} from "next/navigation";
+import Logout from "@/app/components/Logout/Logout";
 
 interface Item {
     weapons?: string;
@@ -49,6 +50,9 @@ export default function Home() {
                     return;
                 }
 
+                document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
+
+
                 const res = await fetch("http://localhost:3001/players/me", {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -56,12 +60,13 @@ export default function Home() {
                 });
 
                 if (res.status === 404) {
-                    router.replace("/newplayer");
+                    router.replace("/newPlayer");
                     return;
                 }
 
                 if (!res.ok) {
-                    console.error("Erreur récupération player", res.status);
+                    localStorage.removeItem("token");
+                    document.cookie = "token=; path=/; max-age=0";
                     router.replace("/auth");
                     return;
                 }
@@ -120,7 +125,8 @@ export default function Home() {
     return (
 
         <div>
-            <h1>Les chroniques imprévisibles</h1>
+            <div className={s.header}><h1>Les chroniques imprévisibles</h1> <Logout/></div>
+
             <main className={s.adventure}>
                 {loadPlayer ? <Player player={loadPlayer}/> : null}
 

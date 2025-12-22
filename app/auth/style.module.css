@@ -1,12 +1,119 @@
+.page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Georgia", serif;
+}
+
 .container {
-    background: #f8f1e4;
+    background: linear-gradient(180deg, #f9f3e7, #efe3c8);
+    border: 2px solid #c7a86b;
+    padding: 3rem 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5),
+    inset 0 0 40px rgba(255, 255, 255, 0.3);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #4b3b1f;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form input {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
     border: 1px solid #c7a86b;
-    padding: 2rem;
-    width: 60%;
-    height: 90vh;
-    margin: 0 auto;
-    max-width: 800px;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-    border-radius: 12px;
-    white-space: pre-line;
+    background: #fffaf0;
+    font-size: 1rem;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.form input:focus {
+    outline: none;
+    border-color: #8f6b2e;
+    box-shadow: 0 0 0 2px rgba(143, 107, 46, 0.3);
+}
+
+.form button {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: linear-gradient(180deg, #c7a86b, #a8874f);
+    color: #2a1f0f;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+
+.form button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.form button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.toggle {
+    margin-top: 2rem;
+    text-align: center;
+    color: #4b3b1f;
+    font-size: 0.9rem;
+}
+
+.toggle button {
+    background: none;
+    color: #8f6b2e;
+    border: none;
+    margin-left: 0.5rem;
+    padding: 0;
+    font-size: 0.9rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.toggle button:hover {
+    color: #5f471f;
+}
+
+.error {
+    margin-top: 1rem;
+    color: #9b3a2e;
+    background: rgba(155, 58, 46, 0.1);
+    border: 1px solid #c7a86b;
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+
+.passwordHints {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    list-style: none;
+    padding: 0;
+}
+
+.valid {
+    color: #2f7a3e;
+}
+
+.invalid {
+    color: #9b3a2e;
 }

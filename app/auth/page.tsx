@@ -11,12 +11,23 @@ export default function AuthPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const passwordRules = [
+        {label: "8 caractères minimum", test: (p: string) => p.length >= 8},
+        {label: "Une majuscule", test: (p: string) => /[A-Z]/.test(p)},
+        {label: "Une minuscule", test: (p: string) => /[a-z]/.test(p)},
+        {label: "Un chiffre", test: (p: string) => /[0-9]/.test(p)},
+        {label: "Un caractère spécial", test: (p: string) => /[^A-Za-z0-9]/.test(p)},
+    ];
 
     const toggleMode = () => setIsLogin(!isLogin);
 
     const handleAuth = async () => {
+        setError(null);
+
         if (!email || !password) {
-            alert("Veuillez remplir tous les champs");
+            setError("Veuillez remplir tous les champs");
             return;
         }
 
@@ -33,52 +44,73 @@ export default function AuthPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                alert(data.message || "Erreur lors de la requête");
-                setLoading(false);
+                setError(data?.errors?.[0]?.message || data.message || "Erreur inconnue");
                 return;
             }
 
             if (isLogin) {
                 localStorage.setItem("token", data.token);
-                alert("Connexion réussie !");
+                document.cookie = `token=${data.token}; path=/; max-age=86400; SameSite=Lax`;
                 router.push("/");
             } else {
-                alert("Compte créé avec succès ! Vous pouvez maintenant vous connecter.");
                 setIsLogin(true);
             }
         } catch (err) {
-            console.error(err);
-            alert("Erreur serveur");
+            setError("Erreur serveur");
         } finally {
             setLoading(false);
         }
     };
 
-    return (
-        <div className={s.container}>
-            <h2>{isLogin ? "Connexion" : "Créer un compte"}</h2>
-            <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-                type="password"
-                placeholder="Mot de passe"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <button onClick={handleAuth} disabled={loading}>
-                {loading ? "En cours..." : isLogin ? "Se connecter" : "S'inscrire"}
-            </button>
 
-            <div className={s.toggle}>
-                {isLogin ? "Pas encore inscrit ?" : "Vous avez déjà un compte ?"}
-                <button onClick={toggleMode}>
-                    {isLogin ? "Créer un compte" : "Se connecter"}
-                </button>
+    return (
+
+        <div className={s.page}>
+            <div className={s.container}>
+                <h2 className={s.title}>
+                    {isLogin ? "Connexion" : "Créer un compte"}
+                </h2>
+
+                <div className={s.form}>
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <input
+                        type="password"
+                        placeholder="Mot de passe"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    {!isLogin && (
+                        <ul className={s.passwordHints}>
+                            {passwordRules.map(rule => (
+                                <li
+                                    key={rule.label}
+                                    className={rule.test(password) ? s.valid : s.invalid}
+                                >
+                                    {rule.label}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+
+                    <button onClick={handleAuth} disabled={loading}>
+                        {loading ? "En cours..." : isLogin ? "Se connecter" : "S'inscrire"}
+                    </button>
+                </div>
+
+                <div className={s.toggle}>
+                <span>
+                    {isLogin ? "Pas encore inscrit ?" : "Vous avez déjà un compte ?"}
+                </span>
+                    <button onClick={toggleMode}>
+                        {isLogin ? "Créer un compte" : "Se connecter"}
+                    </button>
+                </div>
             </div>
         </div>
-    );
+    )
 }
