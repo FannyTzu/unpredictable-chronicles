@@ -1,33 +1,39 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+
+
 .adventure {
-  margin: 16px;
-  display: flex;
+    margin: 16px;
+    display: flex;
 }
 
 .container {
-  background: #f8f1e4;
-  border: 1px solid #c7a86b;
-  padding: 2rem;
-  width: 60%;
-  height: 90vh;
-  margin: 0 auto;
-  max-width: 800px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
-  white-space: pre-line;
+    background: #f8f1e4;
+    border: 1px solid #c7a86b;
+    padding: 2rem;
+    width: 60%;
+    height: 90vh;
+    margin: 0 auto;
+    max-width: 800px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    white-space: pre-line;
 }
 
 .read {
-  height: 70%;
-  overflow-y: auto;
-  padding-right: 8px;
+    height: 70%;
+    overflow-y: auto;
+    padding-right: 8px;
 }
 
 .choice {
-  height: 25%;
-  display: flex;
-  flex-direction: column;
+    height: 25%;
+    display: flex;
+    flex-direction: column;
 
-  align-items: flex-start;
-  gap: 12px;
-  margin-top: 24px;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 24px;
 }

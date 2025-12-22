@@ -5,6 +5,7 @@ import Player from "@/app/components/Player/Player";
 import s from "./style.module.css";
 import DynamicChoices from "@/app/components/DynamicChoices/DynamicChoices";
 import {useRouter} from "next/navigation";
+import Logout from "@/app/components/Logout/Logout";
 
 interface Item {
     weapons?: string;
@@ -124,7 +125,8 @@ export default function Home() {
     return (
 
         <div>
-            <h1>Les chroniques imprévisibles</h1>
+            <div className={s.header}><h1>Les chroniques imprévisibles</h1> <Logout/></div>
+
             <main className={s.adventure}>
                 {loadPlayer ? <Player player={loadPlayer}/> : null}
 
