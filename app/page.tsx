@@ -49,6 +49,9 @@ export default function Home() {
                     return;
                 }
 
+                document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
+
+
                 const res = await fetch("http://localhost:3001/players/me", {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -61,7 +64,8 @@ export default function Home() {
                 }
 
                 if (!res.ok) {
-                    console.error("Erreur récupération player", res.status);
+                    localStorage.removeItem("token");
+                    document.cookie = "token=; path=/; max-age=0";
                     router.replace("/auth");
                     return;
                 }
