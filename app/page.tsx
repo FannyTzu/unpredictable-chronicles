@@ -5,7 +5,8 @@ import Player from "@/app/components/Player/Player";
 import s from "./style.module.css";
 import DynamicChoices from "@/app/components/DynamicChoices/DynamicChoices";
 import {useRouter} from "next/navigation";
-import Logout from "@/app/components/Logout/Logout";
+import {Settings} from "lucide-react";
+
 
 interface Item {
     weapons?: string;
@@ -40,6 +41,10 @@ export default function Home() {
     const [checkingAuth, setCheckingAuth] = useState(true);
 
     const router = useRouter();
+
+    const handleSettings = () => {
+        router.replace('/Settings')
+    }
 
     useEffect(() => {
         const loadPlayerData = async () => {
@@ -125,7 +130,9 @@ export default function Home() {
     return (
 
         <div>
-            <div className={s.header}><h1>Les chroniques imprévisibles</h1> <Logout/></div>
+            <div className={s.header}><h1>Les chroniques imprévisibles</h1>
+                <button onClick={handleSettings} className={s.settingsButton}><Settings size={24}/></button>
+            </div>
 
             <main className={s.adventure}>
                 {loadPlayer ? <Player player={loadPlayer}/> : null}
