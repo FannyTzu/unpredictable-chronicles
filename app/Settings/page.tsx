@@ -94,6 +94,42 @@ function SettingsPage() {
         }
     };
 
+    const handleDeletePlayer = async () => {
+        if (!player) return;
+
+        // Demander confirmation avant suppression
+        if (!confirm("Êtes-vous sûr de vouloir supprimer votre partie ? Cette action est irréversible.")) {
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        try {
+            const res = await fetch(
+                `http://localhost:3001/players/${player.id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (!res.ok) {
+                const err = await res.json();
+                alert(err.message || "Erreur lors de la suppression");
+                return;
+            }
+
+            localStorage.removeItem("token");
+            router.replace("/auth");
+
+        } catch (err) {
+            console.error(err);
+            alert("Erreur serveur");
+        }
+    };
 
     if (loading) return <p>Chargement...</p>;
     if (!player) return <p>Utilisateur non connecté</p>;
@@ -131,7 +167,7 @@ function SettingsPage() {
                 </div>
 
                 <div className={s.playerBlock}><span className={s.playerName}>Supprimer ma partie </span>
-                    <button className={s.editButton}><Trash2/></button>
+                    <button className={s.editButton} onClick={handleDeletePlayer}><Trash2/></button>
                 </div>
 
                 <div className={s.playerBlock}><span className={s.playerName}>Recommencer ma partie</span>
