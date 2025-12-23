@@ -1,0 +1,69 @@
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.container {
+    background: linear-gradient(180deg, #f9f3e7, #efe3c8);
+    border: 2px solid #c7a86b;
+    padding: 3rem 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5),
+    inset 0 0 40px rgba(255, 255, 255, 0.3);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #4b3b1f;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+}
+
+.playerBlock {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #fffaf0;
+    border-radius: 12px;
+    border: 1px solid #c7a86b;
+    margin-bottom: 1.5rem;
+}
+
+.playerName {
+    font-size: 1.1rem;
+    color: #4b3b1f;
+    font-weight: 500;
+}
+
+.editButton {
+    background: linear-gradient(180deg, #c7a86b, #a8874f);
+    color: #2a1f0f;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.editButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    margin: 2rem;
+    gap: 2rem;
+}

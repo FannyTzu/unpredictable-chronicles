@@ -37,3 +37,16 @@
     gap: 12px;
     margin-top: 24px;
 }
+
+.settingsButton {
+    border: none;
+    background: none;
+    padding: 0.4rem;
+    font-size: 1rem;
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.settingsButton:hover {
+    opacity: 1;
+}
