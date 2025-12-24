@@ -5,7 +5,6 @@ import Logout from "@/app/components/Logout/Logout";
 import s from './style.module.css'
 import {RotateCcw, Trash2, UserRoundX, Pencil, Save, Undo2} from 'lucide-react';
 
-
 type Player = {
     id: number;
     name: string;
@@ -46,7 +45,6 @@ function SettingsPage() {
 
                 const data = await res.json();
                 setPlayer(data);
-                console.log(player);
             } catch (err) {
                 console.error("Erreur lors de la vérification d'auth:", err);
                 router.replace("/auth");
@@ -166,9 +164,45 @@ function SettingsPage() {
         }
     };
 
+    const handleDeleteUser = async () => {
+        if (!player) return;
+
+        if (!confirm("Êtes-vous sûr de vouloir supprimer votre compte ? " +
+            "Cette action est irréversible et supprimera votre partie et votre compte.")) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+
+            const response = await fetch('http://localhost:3001/auth/delete-account', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Erreur lors de la suppression du compte');
+            }
+
+            alert('Votre compte a été supprimé avec succès');
+
+            localStorage.removeItem('token');
+
+            router.replace("/auth");
+
+        } catch (error) {
+            console.error('Erreur suppression compte:', error);
+            alert('Erreur lors de la suppression du compte : ');
+        }
+    };
+
     if (loading) return <p>Chargement...</p>;
     if (!player) return <p>Utilisateur non connecté</p>;
-
 
     return (
         <div className={s.page}>
@@ -209,10 +243,10 @@ function SettingsPage() {
                     <button className={s.editButton} onClick={handleResetGame}><RotateCcw/></button>
                 </div>
                 <div className={s.playerBlock}><span className={s.playerName}>Supprimer mon compte</span>
-                    <button className={s.editButton}><UserRoundX/></button>
+                    <button className={s.editButton} onClick={handleDeleteUser}><UserRoundX/></button>
                 </div>
                 <div className={s.actions}>
-                    <button className={s.editButton} onClick={handleBackHome}>Retour dans l'aventure</button>
+                    <button className={s.editButton} onClick={handleBackHome}>Retour dans l&apos;aventure</button>
                     <Logout/>
                 </div>
             </div>
