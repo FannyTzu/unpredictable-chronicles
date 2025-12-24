@@ -94,10 +94,45 @@ function SettingsPage() {
         }
     };
 
+    const handleResetGame = async () => {
+        if (!player) return;
+
+        if (!confirm("Êtes-vous sûr de vouloir recommencer votre partie ? Cette action est irréversible.")) {
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        try {
+            const res = await fetch(
+                `http://localhost:3001/players/${player.id}/reset`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (!res.ok) {
+                const err = await res.json();
+                alert(err.message || "Erreur lors de la suppression");
+                return;
+            }
+
+            router.replace("/");
+
+        } catch (err) {
+            console.error(err);
+            alert("Erreur serveur");
+        }
+    }
+
     const handleDeletePlayer = async () => {
         if (!player) return;
 
-        // Demander confirmation avant suppression
+        // prevoir de créér modal pour toutes les alertes
         if (!confirm("Êtes-vous sûr de vouloir supprimer votre partie ? Cette action est irréversible.")) {
             return;
         }
@@ -171,7 +206,7 @@ function SettingsPage() {
                 </div>
 
                 <div className={s.playerBlock}><span className={s.playerName}>Recommencer ma partie</span>
-                    <button className={s.editButton}><RotateCcw/></button>
+                    <button className={s.editButton} onClick={handleResetGame}><RotateCcw/></button>
                 </div>
                 <div className={s.playerBlock}><span className={s.playerName}>Supprimer mon compte</span>
                     <button className={s.editButton}><UserRoundX/></button>
