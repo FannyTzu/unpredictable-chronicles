@@ -6,7 +6,7 @@ import s from "./style.module.css";
 import DynamicChoices from "@/app/components/DynamicChoices/DynamicChoices";
 import {useRouter} from "next/navigation";
 import {Settings} from "lucide-react";
-
+import DeathScreen from "@/app/components/Death/DeathScreen";
 
 interface Item {
     weapons?: string;
@@ -21,6 +21,7 @@ interface Section {
     choices: { label: string; nextId: number; available: boolean }[];
     impact?: { endurance?: number; money?: number }[];
     items?: Item[];
+    autoEffect?: { type: string; reason?: string; deathTextId?: string };
 }
 
 interface PlayerType {
@@ -31,19 +32,22 @@ interface PlayerType {
     stuff: string[];
     currentPageId: number;
     id: number;
+    stats?: { totalChoices?: number; combats?: number };
 }
 
 export default function Home() {
     const [currentSection, setCurrentSection] = useState<Section | null>(null);
-
     const [loadPlayer, setLoadPlayer] = useState<PlayerType | null>(null);
-
     const [checkingAuth, setCheckingAuth] = useState(true);
+
+    const [pendingDeath, setPendingDeath] = useState<string | null>(null);
+    const [isDead, setIsDead] = useState(false);
+    const [deathTextId, setDeathTextId] = useState<string | null>(null);
 
     const router = useRouter();
 
     const handleSettings = () => {
-        router.replace('/Settings')
+        router.replace('/settings');
     }
 
     useEffect(() => {
@@ -57,15 +61,12 @@ export default function Home() {
 
                 document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
 
-
                 const res = await fetch("http://localhost:3001/players/me", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    headers: {Authorization: `Bearer ${token}`},
                 });
 
                 if (res.status === 404) {
-                    router.replace("/newPlayer");
+                    router.replace("/newplayer");
                     return;
                 }
 
@@ -86,6 +87,10 @@ export default function Home() {
                 if (pageRes.ok) {
                     const page = await pageRes.json();
                     setCurrentSection(page);
+
+                    if (page.autoEffect?.type === "DEATH") {
+                        setPendingDeath(page.autoEffect.deathTextId || null);
+                    }
                 } else {
                     console.error("Impossible de charger la page du joueur", pageRes.status);
                 }
@@ -100,12 +105,10 @@ export default function Home() {
         loadPlayerData();
     }, [router]);
 
-
     const applyChoice = async (nextPageId: number) => {
         if (!loadPlayer) return;
 
         const token = localStorage.getItem("token");
-
 
         const res = await fetch(
             `http://localhost:3001/players/${loadPlayer.id}/choice`,
@@ -121,33 +124,67 @@ export default function Home() {
 
         const data = await res.json();
 
+        if (data.status === "DEAD" && !data.page?.autoEffect) {
+            setDeathTextId(data.deathTextId || null);
+            setIsDead(true);
+            return;
+        }
+
         setLoadPlayer(data.player);
         setCurrentSection(data.page);
+
+        if (data.page?.autoEffect?.type === "DEATH") {
+            setPendingDeath(data.page.autoEffect.deathTextId || null);
+        } else {
+            setPendingDeath(null);
+        }
     };
 
     if (checkingAuth || !currentSection) return <p>Chargement...</p>;
 
-    return (
+    if (isDead && deathTextId && loadPlayer) {
+        return (
+            <DeathScreen
+                deathTextId={deathTextId}
+                stats={loadPlayer.stats ?? {totalChoices: 0, combats: 0}}
+                playerId={loadPlayer.id}
+            />
+        );
+    }
 
+    return (
         <div>
-            <div className={s.header}><h1>Les chroniques imprévisibles</h1>
+            <div className={s.header}>
+                <h1>Les chroniques imprévisibles</h1>
                 <button onClick={handleSettings} className={s.settingsButton}><Settings size={24}/></button>
             </div>
 
             <main className={s.adventure}>
-                {loadPlayer ? <Player player={loadPlayer}/> : null}
+                {loadPlayer && <Player player={loadPlayer}/>}
 
                 <div className={s.container}>
                     <div className={s.read}>
                         <MainBlock description={currentSection}/>
                     </div>
+
                     <div className={s.choice}>
-                        <DynamicChoices choice={currentSection}
-                                        onClick={applyChoice}/>
+                        <DynamicChoices choice={currentSection} onClick={applyChoice}/>
+
+                        {pendingDeath && !isDead && (
+                            <button
+                                className={s.button}
+                                onClick={() => {
+                                    setDeathTextId(pendingDeath);
+                                    setIsDead(true);
+                                    setPendingDeath(null);
+                                }}
+                            >
+                                Continuer
+                            </button>
+                        )}
                     </div>
                 </div>
             </main>
         </div>
-
     );
 }
