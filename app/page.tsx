@@ -50,10 +50,6 @@ export default function Home() {
         router.replace('/settings');
     }
 
-    const resetGame = () => {
-        router.replace("/newplayer");
-    }
-    
     useEffect(() => {
         const loadPlayerData = async () => {
             try {
@@ -152,7 +148,6 @@ export default function Home() {
                 deathTextId={deathTextId}
                 stats={loadPlayer.stats ?? {totalChoices: 0, combats: 0}}
                 playerId={loadPlayer.id}
-                onRestart={resetGame}
             />
         );
     }
@@ -175,7 +170,6 @@ export default function Home() {
                     <div className={s.choice}>
                         <DynamicChoices choice={currentSection} onClick={applyChoice}/>
 
-                        {/* Bouton "Continuer" pour déclencher la mort différée */}
                         {pendingDeath && !isDead && (
                             <button
                                 className={s.button}
