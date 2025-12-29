@@ -7,7 +7,6 @@ import {deathTexts} from "@/app/components/Death/deathTexts";
 interface DeathProps {
     deathTextId: string;
     stats: Stats;
-    onRestart?: () => void;
     playerId: number;
 }
 
