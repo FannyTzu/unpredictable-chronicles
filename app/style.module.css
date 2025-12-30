@@ -66,3 +66,27 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
+
+.combatButton {
+    background-color: #d32f2f; /* rouge foncé, agressif */
+    color: #fff;
+    border: none;
+    padding: 0.7rem 1.2rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.combatButton:hover {
+    background-color: #b71c1c; /* rouge encore plus foncé au survol */
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+}
+
+.combatButton:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+}

@@ -45,12 +45,18 @@ export default function Home() {
     const [isDead, setIsDead] = useState(false);
     const [deathTextId, setDeathTextId] = useState<string | null>(null);
 
+
     const [combatState, setCombatState] = useState<{
         remainingEnemies: number;
         enemyType: string;
     } | null>(null);
     const [lastRoll, setLastRoll] = useState<number>();
     const [lastKills, setLastKills] = useState<number>();
+    const [combatVictory, setCombatVictory] = useState<{
+        nextPageId: number;
+        roll: number;
+        kills: number;
+    } | null>(null);
 
     const router = useRouter();
 
@@ -185,18 +191,20 @@ export default function Home() {
                 setLoadPlayer(prev => prev ? {...prev, endurance: data.endurance} : null);
 
             } else if (data.status === "COMBAT_WON") {
+                console.log("🎉 Combat gagné!");
                 setCombatState(null);
-                // Charger la page suivante
-                const pageRes = await fetch(`http://localhost:3001/pages/${data.nextPageId}`);
-                if (pageRes.ok) {
-                    const newPage = await pageRes.json();
-                    setCurrentSection(newPage);
-                    setLoadPlayer(prev => prev ? {
-                        ...prev,
-                        endurance: data.endurance,
-                        current_page_id: data.nextPageId
-                    } : null);
-                }
+
+
+                setCombatVictory({
+                    nextPageId: data.nextPageId,
+                    roll: data.roll,
+                    kills: data.kills
+                });
+                setLastRoll(data.roll);
+                setLastKills(data.kills);
+
+
+                setLoadPlayer(prev => prev ? {...prev, endurance: data.endurance} : null);
 
             } else if (data.status === "DEAD") {
                 setCombatState(null);
@@ -206,6 +214,16 @@ export default function Home() {
         } catch (error) {
             console.error("Erreur réseau lors du combat:", error);
         }
+    };
+
+    const handleContinueAfterVictory = async () => {
+        if (!combatVictory) return;
+
+        await applyChoice(combatVictory.nextPageId);
+
+        setCombatVictory(null);
+        setLastRoll(undefined);
+        setLastKills(undefined);
     };
 
     if (checkingAuth || !currentSection) return <p>Chargement...</p>;
@@ -240,8 +258,21 @@ export default function Home() {
                             <>
                                 <CombatDisplay combatState={combatState} endurance={loadPlayer?.endurance ?? 0}
                                                lastRoll={lastRoll} lastKills={lastKills}/>
-                                <button className={s.button} onClick={handleRollDice}>Lancer le dé</button>
+                                <button className={s.combatButton} onClick={handleRollDice}> 🎲 Lancer le dé</button>
                             </>
+                        )}
+
+                        {combatVictory && (
+                            <div className={s.victoryContainer}>
+                                <h2>🎉 Victoire !</h2>
+                                <p>Vous avez éliminé tous vos ennemis !</p>
+                                <div className={s.combatStats}>
+                                    <p>🎲 Dernier lancer : <strong>{lastRoll}</strong></p>
+                                </div>
+                                <button className={s.button} onClick={handleContinueAfterVictory}>
+                                    Continuer l&apos;aventure →
+                                </button>
+                            </div>
                         )}
 
                         {pendingDeath && !isDead && (
