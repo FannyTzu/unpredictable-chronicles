@@ -7,6 +7,7 @@ import DynamicChoices from "@/app/components/DynamicChoices/DynamicChoices";
 import {useRouter} from "next/navigation";
 import {Settings} from "lucide-react";
 import DeathScreen from "@/app/components/Death/DeathScreen";
+import CombatDisplay from "@/app/components/Combat/CombatDisplay";
 
 interface Item {
     weapons?: string;
@@ -43,6 +44,19 @@ export default function Home() {
     const [pendingDeath, setPendingDeath] = useState<string | null>(null);
     const [isDead, setIsDead] = useState(false);
     const [deathTextId, setDeathTextId] = useState<string | null>(null);
+
+
+    const [combatState, setCombatState] = useState<{
+        remainingEnemies: number;
+        enemyType: string;
+    } | null>(null);
+    const [lastRoll, setLastRoll] = useState<number>();
+    const [lastKills, setLastKills] = useState<number>();
+    const [combatVictory, setCombatVictory] = useState<{
+        nextPageId: number;
+        roll: number;
+        kills: number;
+    } | null>(null);
 
     const router = useRouter();
 
@@ -133,11 +147,83 @@ export default function Home() {
         setLoadPlayer(data.player);
         setCurrentSection(data.page);
 
+
         if (data.page?.autoEffect?.type === "DEATH") {
             setPendingDeath(data.page.autoEffect.deathTextId || null);
         } else {
             setPendingDeath(null);
         }
+
+        if (data.status === "COMBAT_STARTED") {
+            setCombatState({
+                remainingEnemies: data.combat.remainingEnemies,
+                enemyType: data.combat.enemyType
+            });
+        }
+    };
+
+    const handleRollDice = async () => {
+        if (!loadPlayer || !combatState) return;
+
+        const token = localStorage.getItem("token");
+
+        try {
+            const res = await fetch(`http://localhost:3001/players/${loadPlayer.id}/roll-dice`, {
+                method: "POST",
+                headers: {Authorization: `Bearer ${token}`},
+            });
+
+            if (!res.ok) {
+                console.error("Erreur lors du lancer de dé");
+                return;
+            }
+
+            const data = await res.json();
+
+            setLastRoll(data.roll);
+            setLastKills(data.kills);
+
+            if (data.status === "COMBAT_CONTINUE") {
+                setCombatState(prev => prev ? {
+                    ...prev,
+                    remainingEnemies: data.remainingEnemies
+                } : null);
+                setLoadPlayer(prev => prev ? {...prev, endurance: data.endurance} : null);
+
+            } else if (data.status === "COMBAT_WON") {
+                console.log("🎉 Combat gagné!");
+                setCombatState(null);
+
+
+                setCombatVictory({
+                    nextPageId: data.nextPageId,
+                    roll: data.roll,
+                    kills: data.kills
+                });
+                setLastRoll(data.roll);
+                setLastKills(data.kills);
+
+
+                setLoadPlayer(prev => prev ? {...prev, endurance: data.endurance} : null);
+
+            } else if (data.status === "DEAD") {
+                setCombatState(null);
+                setDeathTextId(data.deathTextId);
+                setIsDead(true);
+            }
+        } catch (error) {
+            console.error("Erreur réseau lors du combat:", error);
+        }
+    };
+
+    const handleContinueAfterVictory = async () => {
+        if (!combatVictory) return;
+
+        await applyChoice(combatVictory.nextPageId);
+
+        setCombatVictory(null);
+        setLastRoll(undefined);
+        setLastKills(undefined);
     };
 
     if (checkingAuth || !currentSection) return <p>Chargement...</p>;
@@ -163,22 +249,38 @@ export default function Home() {
                 {loadPlayer && <Player player={loadPlayer}/>}
 
                 <div className={s.container}>
-                    <div className={s.read}>
-                        <MainBlock description={currentSection}/>
-                    </div>
+                    <div className={s.read}><MainBlock description={currentSection}/></div>
 
                     <div className={s.choice}>
-                        <DynamicChoices choice={currentSection} onClick={applyChoice}/>
+                        {!combatState && <DynamicChoices choice={currentSection} onClick={applyChoice}/>}
+
+                        {combatState && (
+                            <>
+                                <CombatDisplay combatState={combatState} endurance={loadPlayer?.endurance ?? 0}
+                                               lastRoll={lastRoll} lastKills={lastKills}/>
+                                <button className={s.combatButton} onClick={handleRollDice}> 🎲 Lancer le dé</button>
+                            </>
+                        )}
+
+                        {combatVictory && (
+                            <div className={s.victoryContainer}>
+                                <h2>🎉 Victoire !</h2>
+                                <p>Vous avez éliminé tous vos ennemis !</p>
+                                <div className={s.combatStats}>
+                                    <p>🎲 Dernier lancer : <strong>{lastRoll}</strong></p>
+                                </div>
+                                <button className={s.button} onClick={handleContinueAfterVictory}>
+                                    Continuer l&apos;aventure →
+                                </button>
+                            </div>
+                        )}
 
                         {pendingDeath && !isDead && (
-                            <button
-                                className={s.button}
-                                onClick={() => {
-                                    setDeathTextId(pendingDeath);
-                                    setIsDead(true);
-                                    setPendingDeath(null);
-                                }}
-                            >
+                            <button className={s.button} onClick={() => {
+                                setDeathTextId(pendingDeath);
+                                setIsDead(true);
+                                setPendingDeath(null);
+                            }}>
                                 Continuer
                             </button>
                         )}
