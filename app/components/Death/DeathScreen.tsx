@@ -63,16 +63,13 @@ function DeathScreen({deathTextId, stats, playerId}: DeathProps) {
 
                 <div className={s.titleDeath}>{deathTextMessage ?? "Vous êtes mort..."}</div>
 
-                <div>
-                    {/*todo: contenu des stats, à voir ce qui utile...*/}
-                    <div className={s.containerStat}>
-                        <h3>Mes Statistiques de jeu </h3>
-                        <div>Nombre de choix avant la mort : {stats.totalChoices}</div>
-                        <div>Nombre de combat mené : {stats.combats}</div>
-                    </div>
-
+                {/*todo: contenu des stats, à voir ce qui utile...*/}
+                <div className={s.containerStat}>
+                    <h3>Mes Statistiques de jeu </h3>
+                    <div>Nombre de choix avant la mort : {stats.totalChoices}</div>
+                    <div>Nombre de combat mené : {stats.combats}</div>
                 </div>
-
+                
                 <button className={s.button} onClick={handleResetGame}> Recommencer l&apos;histoire</button>
 
             </div>
