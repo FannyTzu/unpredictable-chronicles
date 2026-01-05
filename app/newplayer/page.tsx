@@ -3,6 +3,8 @@
 import {useState} from "react";
 import {useRouter} from "next/navigation";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://unpredictable-backend.onrender.com';
+
 export default function NewPlayerPage() {
     const router = useRouter();
     const [namePlayer, setNamePlayer] = useState("");
@@ -24,7 +26,7 @@ export default function NewPlayerPage() {
         try {
             setLoading(true);
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/players`, {
+            const res = await fetch(`${API_URL}/players`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

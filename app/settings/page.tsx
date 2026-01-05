@@ -5,6 +5,8 @@ import Logout from "@/app/components/Logout/Logout";
 import s from './style.module.css'
 import {RotateCcw, Trash2, UserRoundX, Pencil, Save, Undo2} from 'lucide-react';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://unpredictable-backend.onrender.com';
+
 type Player = {
     id: number;
     name: string;
@@ -33,7 +35,7 @@ function SettingsPage() {
             }
 
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/players/me`, {
+                const res = await fetch(`${API_URL}/players/me`, {
                     headers: {Authorization: `Bearer ${token}`},
                 });
 
@@ -65,7 +67,7 @@ function SettingsPage() {
 
         try {
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/players/${player.id}`,
+                `${API_URL}/players/${player.id}`,
                 {
                     method: "PUT",
                     headers: {
@@ -104,7 +106,7 @@ function SettingsPage() {
 
         try {
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/players/${player.id}/reset`,
+                `${API_URL}/players/${player.id}/reset`,
                 {
                     method: "POST",
                     headers: {
@@ -140,7 +142,7 @@ function SettingsPage() {
 
         try {
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/players/${player.id}`,
+                `${API_URL}/players/${player.id}`,
                 {
                     method: "DELETE",
                     headers: {
@@ -175,7 +177,7 @@ function SettingsPage() {
         try {
             const token = localStorage.getItem('token');
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/delete-account`, {
+            const response = await fetch(`${API_URL}/auth/delete-account`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,

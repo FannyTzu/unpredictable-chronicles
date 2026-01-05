@@ -4,6 +4,8 @@ import s from "./style.module.css";
 import {useRouter} from "next/navigation";
 import {deathTexts} from "@/app/components/Death/deathTexts";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://unpredictable-backend.onrender.com';
+
 interface DeathProps {
     deathTextId: string;
     stats: Stats;
@@ -33,7 +35,7 @@ function DeathScreen({deathTextId, stats, playerId}: DeathProps) {
 
         try {
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/players/${playerId}/reset`,
+                `${API_URL}/players/${playerId}/reset`,
                 {
                     method: "POST",
                     headers: {
