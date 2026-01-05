@@ -75,7 +75,7 @@ export default function Home() {
 
                 document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
 
-                const res = await fetch("http://localhost:3001/players/me", {
+                const res = await fetch("https://votre-backend.onrender.com/players/me", {
                     headers: {Authorization: `Bearer ${token}`},
                 });
 
@@ -95,7 +95,7 @@ export default function Home() {
                 setLoadPlayer(player);
 
                 const pageRes = await fetch(
-                    `http://localhost:3001/pages/${player.current_page_id ?? player.currentPageId}`
+                    `https://votre-backend.onrender.com/pages/${player.current_page_id ?? player.currentPageId}`
                 );
 
                 if (pageRes.ok) {
@@ -125,7 +125,7 @@ export default function Home() {
         const token = localStorage.getItem("token");
 
         const res = await fetch(
-            `http://localhost:3001/players/${loadPlayer.id}/choice`,
+            `https://votre-backend.onrender.com/players/${loadPlayer.id}/choice`,
             {
                 method: "POST",
                 headers: {
@@ -168,7 +168,7 @@ export default function Home() {
         const token = localStorage.getItem("token");
 
         try {
-            const res = await fetch(`http://localhost:3001/players/${loadPlayer.id}/roll-dice`, {
+            const res = await fetch(`https://votre-backend.onrender.com/players/${loadPlayer.id}/roll-dice`, {
                 method: "POST",
                 headers: {Authorization: `Bearer ${token}`},
             });
