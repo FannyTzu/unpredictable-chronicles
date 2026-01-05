@@ -9,6 +9,8 @@
 }
 
 .container {
+    display: flex;
+    flex-direction: column;
     background: linear-gradient(180deg, #f9f3e7, #efe3c8);
     border: 2px solid #c7a86b;
     padding: 3rem 2.5rem;
@@ -25,7 +27,6 @@
     margin-bottom: 2rem;
     color: #4b3b1f;
     font-size: 1.5rem;
-    letter-spacing: 0.05em;
 }
 
 .containerStat {
@@ -42,17 +43,20 @@
 }
 
 .button {
-    background: linear-gradient(180deg, #c7a86b, #a8874f);
-    color: #2a1f0f;
-    border: none;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    font-weight: bold;
+    background: linear-gradient(145deg, #b18b48, #8c6b2f);
+    color: #fff6da;
+    border: 2px solid #604920;
+    border-radius: 20px;
+    padding: 0.8rem 2rem;
+    font-family: "Cinzel Decorative", serif;
+    letter-spacing: 1px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
     cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition: 0.2s;
 }
 
 .button:hover {
+    background: linear-gradient(145deg, #d3b36d, #a07d3f);
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
 }

@@ -276,7 +276,7 @@ export default function Home() {
                         )}
 
                         {pendingDeath && !isDead && (
-                            <button className={s.button} onClick={() => {
+                            <button className={s.continueButton} onClick={() => {
                                 setDeathTextId(pendingDeath);
                                 setIsDead(true);
                                 setPendingDeath(null);
