@@ -33,7 +33,7 @@ function DeathScreen({deathTextId, stats, playerId}: DeathProps) {
 
         try {
             const res = await fetch(
-                `http://localhost:3001/players/${playerId}/reset`,
+                `https://votre-backend.onrender.com/players/${playerId}/reset`,
                 {
                     method: "POST",
                     headers: {
@@ -69,7 +69,7 @@ function DeathScreen({deathTextId, stats, playerId}: DeathProps) {
                     <div>Nombre de choix avant la mort : {stats.totalChoices}</div>
                     <div>Nombre de combat mené : {stats.combats}</div>
                 </div>
-                
+
                 <button className={s.button} onClick={handleResetGame}> Recommencer l&apos;histoire</button>
 
             </div>

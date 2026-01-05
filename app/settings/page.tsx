@@ -33,7 +33,7 @@ function SettingsPage() {
             }
 
             try {
-                const res = await fetch("http://localhost:3001/players/me", {
+                const res = await fetch("https://votre-backend.onrender.com/players/me", {
                     headers: {Authorization: `Bearer ${token}`},
                 });
 
@@ -65,7 +65,7 @@ function SettingsPage() {
 
         try {
             const res = await fetch(
-                `http://localhost:3001/players/${player.id}`,
+                `https://votre-backend.onrender.com/players/${player.id}`,
                 {
                     method: "PUT",
                     headers: {
@@ -104,7 +104,7 @@ function SettingsPage() {
 
         try {
             const res = await fetch(
-                `http://localhost:3001/players/${player.id}/reset`,
+                `https://votre-backend.onrender.com/players/${player.id}/reset`,
                 {
                     method: "POST",
                     headers: {
@@ -140,7 +140,7 @@ function SettingsPage() {
 
         try {
             const res = await fetch(
-                `http://localhost:3001/players/${player.id}`,
+                `https://votre-backend.onrender.com/players/${player.id}`,
                 {
                     method: "DELETE",
                     headers: {
@@ -175,7 +175,7 @@ function SettingsPage() {
         try {
             const token = localStorage.getItem('token');
 
-            const response = await fetch('http://localhost:3001/auth/delete-account', {
+            const response = await fetch('https://votre-backend.onrender.com/auth/delete-account', {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
