@@ -35,7 +35,7 @@ export default function AuthPage() {
         const endpoint = isLogin ? "login" : "register";
 
         try {
-            const res = await fetch(`https://votre-backend.onrender.com/auth/${endpoint}`, {
+            const res = await fetch(`https://unpredictable-backend.onrender.com/auth/${endpoint}`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({email, password}),

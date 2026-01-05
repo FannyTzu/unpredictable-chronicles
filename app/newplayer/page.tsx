@@ -24,7 +24,7 @@ export default function NewPlayerPage() {
         try {
             setLoading(true);
 
-            const res = await fetch("https://votre-backend.onrender.com/players", {
+            const res = await fetch("https://unpredictable-backend.onrender.com/players", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

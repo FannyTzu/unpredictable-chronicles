@@ -33,7 +33,7 @@ function DeathScreen({deathTextId, stats, playerId}: DeathProps) {
 
         try {
             const res = await fetch(
-                `https://votre-backend.onrender.com/players/${playerId}/reset`,
+                `https://unpredictable-backend.onrender.com/players/${playerId}/reset`,
                 {
                     method: "POST",
                     headers: {
