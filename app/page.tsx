@@ -75,7 +75,7 @@ export default function Home() {
 
                 document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
 
-                const res = await fetch("https://unpredictable-backend.onrender.com/players/me", {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/players/me`, {
                     headers: {Authorization: `Bearer ${token}`},
                 });
 
@@ -95,7 +95,7 @@ export default function Home() {
                 setLoadPlayer(player);
 
                 const pageRes = await fetch(
-                    `https://unpredictable-backend.onrender.com/pages/${player.current_page_id ?? player.currentPageId}`
+                    `${process.env.NEXT_PUBLIC_API_URL}/pages/${player.current_page_id ?? player.currentPageId}`
                 );
 
                 if (pageRes.ok) {
@@ -125,7 +125,7 @@ export default function Home() {
         const token = localStorage.getItem("token");
 
         const res = await fetch(
-            `https://unpredictable-backend.onrender.com/players/${loadPlayer.id}/choice`,
+            `${process.env.NEXT_PUBLIC_API_URL}/players/${loadPlayer.id}/choice`,
             {
                 method: "POST",
                 headers: {
@@ -168,7 +168,7 @@ export default function Home() {
         const token = localStorage.getItem("token");
 
         try {
-            const res = await fetch(`https://unpredictable-backend.onrender.com/players/${loadPlayer.id}/roll-dice`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/players/${loadPlayer.id}/roll-dice`, {
                 method: "POST",
                 headers: {Authorization: `Bearer ${token}`},
             });
