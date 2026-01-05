@@ -4,6 +4,8 @@ import React, {useState} from "react";
 import {useRouter} from "next/navigation";
 import s from "./style.module.css";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://unpredictable-backend.onrender.com';
+
 export default function AuthPage() {
     const router = useRouter();
 
@@ -35,7 +37,8 @@ export default function AuthPage() {
         const endpoint = isLogin ? "login" : "register";
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/${endpoint}`, {
+            console.log('API_URL:', API_URL);
+            const res = await fetch(`${API_URL}/auth/${endpoint}`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({email, password}),
