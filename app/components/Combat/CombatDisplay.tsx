@@ -1,4 +1,5 @@
 import React from 'react';
+import s from './style.module.css';
 
 interface CombatDisplayProps {
     combatState: {
@@ -12,7 +13,7 @@ interface CombatDisplayProps {
 
 function CombatDisplay({combatState, endurance, lastRoll, lastKills}: CombatDisplayProps) {
     return (
-        <div>
+        <div className={s.container}>
             <div>🧟‍♂️ Nombres d&apos;ennemis restants : {combatState.remainingEnemies}</div>
             {/* à venir <div> Type : {combatState.enemyType}</div>*/}
             <div> ❤️ Endurance player : {endurance}</div>

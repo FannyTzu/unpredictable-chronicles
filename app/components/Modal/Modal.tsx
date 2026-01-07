@@ -1,35 +1,26 @@
 'use client';
 
-import React from 'react';
-import * as Dialog from "@radix-ui/react-dialog";
-import {ReactNode} from "react";
-
-import s from './style.module.css'
+import React, { ReactNode } from 'react';
+import s from './style.module.css';
 
 type ModalProps = {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+    isOpen: boolean;
     title?: string;
     children: ReactNode;
 };
 
-function Modal({open, onOpenChange, title, children,}: ModalProps) {
+function Modal({ isOpen, title, children }: ModalProps) {
+    if (!isOpen) return null;
 
     return (
-        <>
-            <Dialog.Root open={open} onOpenChange={onOpenChange}>
-                <Dialog.Portal>
-                    <Dialog.Overlay className={s.overlay}/>
-                    <Dialog.Content className={s.content}>
-                        {title && <Dialog.Title className={s.title}>{title}</Dialog.Title>}
-
-                        {children}
-
-                        <Dialog.Close className={s.close}>✕</Dialog.Close>
-                    </Dialog.Content>
-                </Dialog.Portal>
-            </Dialog.Root>
-        </>
+        <div className={s.overlay}>
+            <div className={s.modal}>
+                {title && <h2 className={s.title}>{title}</h2>}
+                <div className={s.content}>
+                    {children}
+                </div>
+            </div>
+        </div>
     );
 }
 
