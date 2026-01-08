@@ -275,7 +275,7 @@ export default function Home() {
         </div>
       </main>
 
-      <Modal isOpen={isCombatModalOpen} title="⚔️ Combat">
+      <Modal isOpen={isCombatModalOpen} title="⚔️ Combat" onClose={() => setIsCombatModalOpen(false)}>
         {combatState && (
           <>
             <CombatDisplay combatState={combatState} endurance={loadPlayer?.endurance ?? 0}
@@ -285,7 +285,7 @@ export default function Home() {
         )}
       </Modal>
 
-      <Modal isOpen={!!combatVictory} title="🎉 Victoire !">
+      <Modal isOpen={!!combatVictory} title="🎉 Victoire !" onClose={() => setCombatVictory(null)}>
         {combatVictory && (
           <>
             <VictoryDisplay lastRoll={lastRoll} />
