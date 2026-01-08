@@ -2,6 +2,7 @@
 
 import {useState} from "react";
 import {useRouter} from "next/navigation";
+import Modal from "@/app/components/Modal/Modal";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://unpredictable-backend.onrender.com';
 
@@ -10,15 +11,20 @@ export default function NewPlayerPage() {
     const [namePlayer, setNamePlayer] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const [showModal, setShowModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState<string>("");
+
     const handlePlayer = async () => {
         if (!namePlayer) {
-            alert("Veuillez choisir un nom");
+            setModalMessage("Veuillez choisir un nom");
+            setShowModal(true);
             return;
         }
 
         const token = localStorage.getItem("token");
         if (!token) {
-            alert("Vous devez être connecté");
+           setModalMessage("Vous devez être connecté");
+           setShowModal(true);
             router.push("/auth");
             return;
         }
@@ -67,6 +73,7 @@ export default function NewPlayerPage() {
             <button onClick={handlePlayer} disabled={loading}>
                 {loading ? "Création..." : "Lancer la partie"}
             </button>
+            {showModal && <Modal message={modalMessage} onClose={() => setShowModal(false)} />}
         </div>
     );
 }

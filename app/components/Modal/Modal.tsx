@@ -4,12 +4,14 @@ import React, { ReactNode } from 'react';
 import s from './style.module.css';
 
 type ModalProps = {
-    isOpen: boolean;
+    isOpen?: boolean;
     title?: string;
-    children: ReactNode;
+    message?: string;
+    children?: ReactNode;
+    onClose?: () => void;
 };
 
-function Modal({ isOpen, title, children }: ModalProps) {
+function Modal({ isOpen, title, message, children, onClose }: ModalProps) {
     if (!isOpen) return null;
 
     return (
@@ -18,6 +20,9 @@ function Modal({ isOpen, title, children }: ModalProps) {
                 {title && <h2 className={s.title}>{title}</h2>}
                 <div className={s.content}>
                     {children}
+                </div>
+                <div>
+                    <p>{message}</p>
                 </div>
             </div>
         </div>

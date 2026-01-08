@@ -4,6 +4,7 @@ import {useRouter} from "next/navigation";
 import Logout from "@/app/components/Logout/Logout";
 import s from './style.module.css'
 import {RotateCcw, Trash2, UserRoundX, Pencil, Save, Undo2} from 'lucide-react';
+import Modal from "@/app/components/Modal/Modal";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://unpredictable-backend.onrender.com';
 
@@ -19,6 +20,12 @@ function SettingsPage() {
 
     const [editing, setEditing] = useState(false);
     const [newName, setNewName] = useState("");
+
+    const [showModal, setShowModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState<string>("");
+    const [confirmAction, setConfirmAction] = useState<(() => Promise<void>) | null>(null);
+
+
 
     const router = useRouter();
 
@@ -97,37 +104,28 @@ function SettingsPage() {
     const handleResetGame = async () => {
         if (!player) return;
 
-        if (!confirm("Êtes-vous sûr de vouloir recommencer votre partie ? Cette action est irréversible.")) {
-            return;
-        }
-
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        try {
-            const res = await fetch(
-                `${API_URL}/players/${player.id}/reset`,
-                {
+        setModalMessage("Êtes-vous sûr de vouloir recommencer votre partie ? Cette action est irréversible.");
+        setConfirmAction(async () => {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+            try {
+                const res = await fetch(`${API_URL}/players/${player.id}/reset`, {
                     method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert(err.message || "Erreur lors de la suppression");
+                    return;
                 }
-            );
-
-            if (!res.ok) {
-                const err = await res.json();
-                alert(err.message || "Erreur lors de la suppression");
-                return;
+                router.replace("/");
+            } catch (err) {
+                console.error(err);
+                alert("Erreur serveur");
             }
-
-            router.replace("/");
-
-        } catch (err) {
-            console.error(err);
-            alert("Erreur serveur");
-        }
-    }
+        });
+        setShowModal(true);
+    };
 
     const handleDeletePlayer = async () => {
         if (!player) return;
@@ -252,6 +250,7 @@ function SettingsPage() {
                     <Logout/>
                 </div>
             </div>
+            {showModal && <Modal message={modalMessage} onClose={() => setShowModal(false)} />}
         </div>
     );
 }
