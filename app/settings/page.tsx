@@ -1,258 +1,266 @@
 'use client'
-import React, {useEffect, useState} from 'react';
-import {useRouter} from "next/navigation";
+import React, { useEffect, useState } from 'react';
+import { useRouter } from "next/navigation";
 import Logout from "@/app/components/Logout/Logout";
 import s from './style.module.css'
-import {RotateCcw, Trash2, UserRoundX, Pencil, Save, Undo2} from 'lucide-react';
+import { RotateCcw, Trash2, UserRoundX, Pencil, Save, Undo2 } from 'lucide-react';
 import Modal from "@/app/components/Modal/Modal";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://unpredictable-backend.onrender.com';
 
 type Player = {
-    id: number;
-    name: string;
+  id: number;
+  name: string;
 };
 
 function SettingsPage() {
 
-    const [player, setPlayer] = useState<Player | null>(null);
-    const [loading, setLoading] = useState(true);
+  const [player, setPlayer] = useState<Player | null>(null);
+  const [loading, setLoading] = useState(true);
 
-    const [editing, setEditing] = useState(false);
-    const [newName, setNewName] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [newName, setNewName] = useState("");
 
-    const [showModal, setShowModal] = useState(false);
-    const [modalMessage, setModalMessage] = useState<string>("");
-    const [confirmAction, setConfirmAction] = useState<(() => Promise<void>) | null>(null);
-
-
-
-    const router = useRouter();
-
-    const handleBackHome = () => {
-        router.replace('/')
-    }
-
-    useEffect(() => {
-        const load = async () => {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                router.replace("/auth");
-                return;
-            }
-
-            try {
-                const res = await fetch(`${API_URL}/players/me`, {
-                    headers: {Authorization: `Bearer ${token}`},
-                });
-
-                if (!res.ok) {
-                    localStorage.removeItem("token");
-                    router.replace("/auth");
-                    return;
-                }
-
-                const data = await res.json();
-                setPlayer(data);
-            } catch (err) {
-                console.error("Erreur lors de la vérification d'auth:", err);
-                router.replace("/auth");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        load();
-    }, [router]);
-
-    const handleUpdateName = async () => {
-        if (!player || !newName.trim()) return;
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState<string>("");
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
 
 
-        const token = localStorage.getItem("token");
-        if (!token) return;
 
-        try {
-            const res = await fetch(
-                `${API_URL}/players/${player.id}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({name: newName}),
-                }
-            );
+  const router = useRouter();
 
-            if (!res.ok) {
-                const err = await res.json();
-                alert(err.message || "Erreur mise à jour");
-                return;
-            }
+  const handleBackHome = () => {
+    router.replace('/')
+  }
 
-            const data = await res.json();
-            setPlayer(data);
-            setNewName(data.name);
-            setEditing(false);
-        } catch (err) {
-            console.error(err);
-            alert("Erreur serveur");
-        }
-    };
+  useEffect(() => {
+    const load = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.replace("/auth");
+        return;
+      }
 
-    const handleResetGame = async () => {
-        if (!player) return;
-
-        setModalMessage("Êtes-vous sûr de vouloir recommencer votre partie ? Cette action est irréversible.");
-        setConfirmAction(async () => {
-            const token = localStorage.getItem("token");
-            if (!token) return;
-            try {
-                const res = await fetch(`${API_URL}/players/${player.id}/reset`, {
-                    method: "POST",
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                if (!res.ok) {
-                    const err = await res.json();
-                    alert(err.message || "Erreur lors de la suppression");
-                    return;
-                }
-                router.replace("/");
-            } catch (err) {
-                console.error(err);
-                alert("Erreur serveur");
-            }
+      try {
+        const res = await fetch(`${API_URL}/players/me`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        setShowModal(true);
+
+        if (!res.ok) {
+          localStorage.removeItem("token");
+          router.replace("/auth");
+          return;
+        }
+
+        const data = await res.json();
+        setPlayer(data);
+      } catch (err) {
+        console.error("Erreur lors de la vérification d'auth:", err);
+        router.replace("/auth");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const handleDeletePlayer = async () => {
-        if (!player) return;
+    load();
+  }, [router]);
 
-        // prevoir de créér modal pour toutes les alertes
-        if (!confirm("Êtes-vous sûr de vouloir supprimer votre partie ? Cette action est irréversible.")) {
-            return;
+  const handleUpdateName = async () => {
+    if (!player || !newName.trim()) return;
+
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch(
+        `${API_URL}/players/${player.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name: newName }),
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.message || "Erreur mise à jour");
+        return;
+      }
+
+      const data = await res.json();
+      setPlayer(data);
+      setNewName(data.name);
+      setEditing(false);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur serveur");
+    }
+  };
+
+  const handleResetGame = () => {
+    if (!player) return;
+
+    setModalMessage("Êtes-vous sûr de vouloir recommencer votre partie ? Cette action est irréversible.");
+    setConfirmAction(() => async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const res = await fetch(`${API_URL}/players/${player.id}/reset`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          alert(err.message || "Erreur lors de la suppression");
+          return;
+        }
+        setShowModal(false);
+        router.replace("/");
+      } catch (err) {
+        console.error(err);
+        alert("Erreur serveur");
+      }
+    });
+    setShowModal(true);
+  };
+
+  const handleDeletePlayer = () => {
+    if (!player) return;
+
+    setModalMessage("Êtes-vous sûr de vouloir supprimer votre partie ? Cette action est irréversible.");
+    setConfirmAction(() => async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await fetch(
+          `${API_URL}/players/${player.id}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!res.ok) {
+          const err = await res.json();
+          alert(err.message || "Erreur lors de la suppression");
+          return;
         }
 
-        const token = localStorage.getItem("token");
-        if (!token) return;
+        localStorage.removeItem("token");
+        setShowModal(false);
+        router.replace("/auth");
 
-        try {
-            const res = await fetch(
-                `${API_URL}/players/${player.id}`,
-                {
-                    method: "DELETE",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+      } catch (err) {
+        console.error(err);
+        alert("Erreur serveur");
+      }
+    });
+    setShowModal(true);
+  };
 
-            if (!res.ok) {
-                const err = await res.json();
-                alert(err.message || "Erreur lors de la suppression");
-                return;
-            }
+  const handleDeleteUser = () => {
+    if (!player) return;
 
-            localStorage.removeItem("token");
-            router.replace("/auth");
+    setModalMessage("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible et supprimera votre partie et votre compte.");
+    setConfirmAction(() => async () => {
+      try {
+        const token = localStorage.getItem('token');
 
-        } catch (err) {
-            console.error(err);
-            alert("Erreur serveur");
-        }
-    };
+        const response = await fetch(`${API_URL}/auth/delete-account`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
-    const handleDeleteUser = async () => {
-        if (!player) return;
+        const data = await response.json();
 
-        if (!confirm("Êtes-vous sûr de vouloir supprimer votre compte ? " +
-            "Cette action est irréversible et supprimera votre partie et votre compte.")) {
-            return;
+        if (!response.ok) {
+          throw new Error(data.message || 'Erreur lors de la suppression du compte');
         }
 
-        try {
-            const token = localStorage.getItem('token');
+        alert('Votre compte a été supprimé avec succès');
 
-            const response = await fetch(`${API_URL}/auth/delete-account`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+        localStorage.removeItem('token');
+        setShowModal(false);
 
-            const data = await response.json();
+        router.replace("/auth");
 
-            if (!response.ok) {
-                throw new Error(data.message || 'Erreur lors de la suppression du compte');
-            }
+      } catch (error) {
+        console.error('Erreur suppression compte:', error);
+        alert('Erreur lors de la suppression du compte : ');
+      }
+    });
+    setShowModal(true);
+  };
 
-            alert('Votre compte a été supprimé avec succès');
+  if (loading) return <p>Chargement...</p>;
+  if (!player) return <p>Utilisateur non connecté</p>;
 
-            localStorage.removeItem('token');
+  return (
+    <div className={s.page}>
+      <div className={s.container}>
+        <h2 className={s.title}>Paramètres</h2>
 
-            router.replace("/auth");
+        <div className={s.playerBlock}>
+          {editing ? (
+            <>
+              <input
 
-        } catch (error) {
-            console.error('Erreur suppression compte:', error);
-            alert('Erreur lors de la suppression du compte : ');
-        }
-    };
-
-    if (loading) return <p>Chargement...</p>;
-    if (!player) return <p>Utilisateur non connecté</p>;
-
-    return (
-        <div className={s.page}>
-            <div className={s.container}>
-                <h2 className={s.title}>Paramètres</h2>
-
-                <div className={s.playerBlock}>
-                    {editing ? (
-                        <>
-                            <input
-
-                                value={newName}
-                                onChange={(e) => setNewName(e.target.value)}
-                            />
-                            <button className={s.editButton} onClick={handleUpdateName}><Save size={16}/></button>
-                            <button className={s.editButton} onClick={() => setEditing(false)}><Undo2 size={16}/>
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <span className={s.playerName}>{player.name}</span>
-                            <button className={s.editButton}
-                                    onClick={() => {
-                                        setNewName(player.name);
-                                        setEditing(true);
-                                    }}
-                            ><Pencil/>
-                            </button>
-                        </>
-                    )}
-                </div>
-
-                <div className={s.playerBlock}><span className={s.playerName}>Supprimer ma partie </span>
-                    <button className={s.editButton} onClick={handleDeletePlayer}><Trash2/></button>
-                </div>
-
-                <div className={s.playerBlock}><span className={s.playerName}>Recommencer ma partie</span>
-                    <button className={s.editButton} onClick={handleResetGame}><RotateCcw/></button>
-                </div>
-                <div className={s.playerBlock}><span className={s.playerName}>Supprimer mon compte</span>
-                    <button className={s.editButton} onClick={handleDeleteUser}><UserRoundX/></button>
-                </div>
-                <div className={s.actions}>
-                    <button className={s.editButton} onClick={handleBackHome}>Retour dans l&apos;aventure</button>
-                    <Logout/>
-                </div>
-            </div>
-            {showModal && <Modal message={modalMessage} onClose={() => setShowModal(false)} />}
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+              />
+              <button className={s.editButton} onClick={handleUpdateName}><Save size={16} /></button>
+              <button className={s.editButton} onClick={() => setEditing(false)}><Undo2 size={16} />
+              </button>
+            </>
+          ) : (
+            <>
+              <span className={s.playerName}>{player.name}</span>
+              <button className={s.editButton}
+                onClick={() => {
+                  setNewName(player.name);
+                  setEditing(true);
+                }}
+              ><Pencil />
+              </button>
+            </>
+          )}
         </div>
-    );
+
+        <div className={s.playerBlock}><span className={s.playerName}>Supprimer ma partie </span>
+          <button className={s.editButton} onClick={handleDeletePlayer}><Trash2 /></button>
+        </div>
+
+        <div className={s.playerBlock}><span className={s.playerName}>Recommencer ma partie</span>
+          <button className={s.editButton} onClick={handleResetGame}><RotateCcw /></button>
+        </div>
+        <div className={s.playerBlock}><span className={s.playerName}>Supprimer mon compte</span>
+          <button className={s.editButton} onClick={handleDeleteUser}><UserRoundX /></button>
+        </div>
+        <div className={s.actions}>
+          <button className={s.editButton} onClick={handleBackHome}>Retour dans l&apos;aventure</button>
+          <Logout />
+        </div>
+      </div>
+      <Modal
+        isOpen={showModal}
+        message={modalMessage}
+        onClose={() => setShowModal(false)}
+        onConfirm={confirmAction ? () => {
+          confirmAction();
+        } : undefined}
+      />
+    </div>
+  );
 }
 
 export default SettingsPage;
