@@ -164,7 +164,6 @@ export default function Home() {
         remainingEnemies: data.combat.remainingEnemies,
         enemyType: data.combat.enemyType
       });
-      setIsCombatModalOpen(true);
     }
   };
 
@@ -261,7 +260,12 @@ export default function Home() {
 
           <div className={s.choice}>
             <DynamicChoices choice={currentSection} onClick={applyChoice} />
-
+            {combatState && (<button
+              onClick={() => combatState && setIsCombatModalOpen(true)}
+              className={s.continueButton}
+            >
+              Lancer le combat
+            </button>)}
             {pendingDeath && !isDead && (
               <button className={s.continueButton} onClick={() => {
                 setDeathTextId(pendingDeath);
@@ -274,6 +278,8 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+
 
       <Modal isOpen={isCombatModalOpen} title="⚔️ Combat" onClose={() => setIsCombatModalOpen(false)}>
         {combatState && (
